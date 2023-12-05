@@ -25,7 +25,7 @@ async function main() {
 
   let res: SearchEntry[] = await new Promise(resolve => {
     let res: SearchEntry[] = [];
-    search_users(session, (entry) => {
+    search_users(session, (entry: SearchMessage) => {
       let operation = entry.op;
       if ('search_entry' in operation) {
         let entry = operation.search_entry;
