@@ -13,6 +13,6 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "@devolutions/ldap-wasm-js": "file:../ldap3/wasm"
+    "@devolutions/ldap-wasm-js": "0.2.0"
   }
 }
