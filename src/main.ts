@@ -25,16 +25,30 @@ async function main() {
     return;
   }
 
-
-  let delete_res = await session.delete("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja");
-  console.log(delete_res);
-
-  let add_res = await session.add("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja", [
-    { attribute_name: "objectClass", attribute_value: ["top", "group"] },
+  let old_dn = "CN=TestUser,CN=Users,DC=ad,DC=it-help,DC=ninja";
+  // create old dn
+  let add_res = await session.add(old_dn, [
+    { attribute_name: "objectClass", attribute_value: ["top", "person", "organizationalPerson", "user"] },
   ])
-
-
   console.log(add_res);
+
+  let new_dn = "CN=TestUserModifed";
+  // make sure new dn does not exist
+  let delete_res_new = await session.delete("CN=TestUserModifed,CN=Users,DC=ad,DC=it-help,DC=ninja");
+  console.log(delete_res_new);
+
+
+
+  let delete_old_dn = true;
+
+
+  let modify_dn_res = await session.modify_dn(old_dn, new_dn, delete_old_dn, "CN=Users,DC=ad,DC=it-help,DC=ninja");
+
+  console.log(modify_dn_res);
+
+  //delete new dn
+  let delete_res = await session.delete("CN=TestUserModifed,CN=Users,DC=ad,DC=it-help,DC=ninja");
+  console.log(delete_res);
 
 }
 
