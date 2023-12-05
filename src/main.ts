@@ -1,10 +1,8 @@
 import init, {
-  JsLdapSearchScope,
   LdapSession,
   LdapSessionParameters,
   LoggingLevel,
   set_logging_level,
-  DisplayableModify
 } from "@devolutions/ldap-wasm-js";
 
 async function main() {
@@ -22,12 +20,21 @@ async function main() {
     "DevoLabs123!",
   );
 
-  if (bind_res) {
+  if (!bind_res) {
     console.log("Error binding");
     return;
   }
 
 
+  let delete_res = await session.delete("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja");
+  console.log(delete_res);
+
+  let add_res = await session.add("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja", [
+    { attribute_name: "objectClass", attribute_value: ["top", "group"] },
+  ])
+
+
+  console.log(add_res);
 
 }
 
