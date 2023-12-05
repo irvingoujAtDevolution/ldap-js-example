@@ -1,12 +1,11 @@
 import init, {
-  DisplayableAttribute,
-  DisplayableEntry,
-  DisplayableSearchMessage,
   JsLdapSearchScope,
   LdapParser,
   LdapSession,
   LdapSessionParameters,
   LoggingLevel,
+  SearchEntry,
+  SearchMessage,
   set_logging_level,
 } from "@devolutions/ldap-wasm-js";
 
@@ -24,9 +23,9 @@ async function main() {
   let bind_res = await ntlm_bind(session);
   console.log(bind_res)
 
-  let res: DisplayableEntry[] = await new Promise(resolve => {
-    let res: DisplayableEntry[] = [];
-    search_users(session, (entry: DisplayableSearchMessage) => {
+  let res: SearchEntry[] = await new Promise(resolve => {
+    let res: SearchEntry[] = [];
+    search_users(session, (entry) => {
       let operation = entry.op;
       if ('search_entry' in operation) {
         let entry = operation.search_entry;
@@ -111,7 +110,7 @@ const simple_bind = async (session: LdapSession) => {
   );
 }
 
-const search_users = (session: LdapSession, onMessage: (entryy: DisplayableSearchMessage) => void) => {
+const search_users = (session: LdapSession, onMessage: (entry: SearchMessage) => void) => {
   // search for user
   const filter = `(objectClass=user)`;
   const scope = JsLdapSearchScope.Subtree;
@@ -120,15 +119,15 @@ const search_users = (session: LdapSession, onMessage: (entryy: DisplayableSearc
   session.search(base_dn, filter, scope, [], size_limit, time_limit).on_message(onMessage)
 }
 
-const retrive_schema_for_attribute = async (session: LdapSession, attributeName: string): Promise<DisplayableEntry | null> => {
+const retrive_schema_for_attribute = async (session: LdapSession, attributeName: string): Promise<SearchEntry | null> => {
   const filter = `(cn=*${attributeName}*)`;
   const scope = JsLdapSearchScope.Subtree;
   const size_limit = 1;
   const time_limit = 60;
   const dn_schema = "CN=Schema,CN=Configuration,DC=ad,DC=it-help,DC=ninja"
   return new Promise(resolve => {
-    let res: DisplayableEntry | null = null;
-    session.search(dn_schema, filter, scope, ["cn", "attributeSyntax", "oMSyntax"], size_limit, time_limit).on_message((v: DisplayableSearchMessage) => {
+    let res: SearchEntry | null = null;
+    session.search(dn_schema, filter, scope, ["cn", "attributeSyntax", "oMSyntax"], size_limit, time_limit).on_message((v: SearchMessage) => {
       let operation = v.op;
       if ('search_entry' in operation) {
         res = operation.search_entry;
@@ -145,12 +144,12 @@ const retrive_schema = async (session: LdapSession) => {
   const size_limit = 5;
   const time_limit = 60;
   const dn_schema = "CN=Schema,CN=Configuration,DC=ad,DC=it-help,DC=ninja"
-  session.search(dn_schema, filter, scope, ["cn", "attribyteSyntax", "oMSyntax"], size_limit, time_limit).on_message((v: DisplayableSearchMessage) => {
+  session.search(dn_schema, filter, scope, ["cn", "attribyteSyntax", "oMSyntax"], size_limit, time_limit).on_message((v: SearchMessage) => {
     let operation = v.op;
     if ('search_entry' in operation) {
       let entry = operation.search_entry;
       let attributes_arr = entry.attributes;
-      attributes_arr.forEach((a: DisplayableAttribute) => {
+      attributes_arr.forEach((a) => {
         let result = LdapParser.parse_value("StringPrintable", a.attribute_value)
         console.log(result)
       })
