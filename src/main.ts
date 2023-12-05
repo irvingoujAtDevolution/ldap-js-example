@@ -4,11 +4,8 @@ import init, {
   LdapSessionParameters,
   LoggingLevel,
   set_logging_level,
-  DisplayableAttributesValueType,
   DisplayableModify
 } from "@devolutions/ldap-wasm-js";
-import { cp } from "fs";
-import { Session } from "inspector";
 
 async function main() {
   let res = await init();
@@ -25,49 +22,12 @@ async function main() {
     "DevoLabs123!",
   );
 
-  session.search(
-    "DC=ad,DC=it-help,DC=ninja",
-    "(objectclass=person)",
-    JsLdapSearchScope.Subtree,
-  )
-    .with_attribute_schema([
-      { atype: "cn", value: "string" },
-    ])
-    .on_message((message: any) => {
-      console.log(message);
-    });
-
-  let add_res = await session.add("CN=TestUser,CN=Users,DC=ad,DC=it-help,DC=ninja", [
-    {
-      attribute_name: "objectClass",
-      attribute_value: {
-        type: "string",
-        value: ["top", "person", "organizationalPerson", "user"],
-      }
-    }
-  ])
-
-  console.log("add_res", add_res);
-
-  let modify: DisplayableModify = {
-    attribute: {
-      attribute_name: "cn",
-      attribute_value: {
-        type: "string",
-        value: ["TestUser"],
-      }
-    },
-    operation: "Replace"
+  if (bind_res) {
+    console.log("Error binding");
+    return;
   }
 
-  let modify_res = await session.modify("CN=TestUser,CN=Users,DC=ad,DC=it-help,DC=ninja", [modify])
-  console.log("modify_res", modify_res);
 
-
-
-  let del_res = await session.delete("CN=TestUser,CN=Users,DC=ad,DC=it-help,DC=ninja");
-
-  console.log("del_res", del_res);
 
 }
 
