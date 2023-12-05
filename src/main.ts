@@ -42,7 +42,7 @@ async function main() {
   // step 1: get a attribute
   let fist_entry = res[0];
   console.log(fist_entry)
-  let random_attribute = fist_entry.attributes[Math.floor(Math.random() * fist_entry.attributes.length)];
+  let random_attribute = fist_entry.attributes[Math.floor(Math.random() * fist_entry.attributes.length)]; // random attribute
   // step 2: get the name of the attribute
   let attribute_name = random_attribute.attribute_name;
   console.log(attribute_name)
