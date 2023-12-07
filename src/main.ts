@@ -1,7 +1,9 @@
 import init, {
+  JsLdapSearchScope,
   LdapSession,
   LdapSessionParameters,
   LoggingLevel,
+  SearchMessage,
   set_logging_level,
 } from "@devolutions/ldap-wasm-js";
 
@@ -19,23 +21,31 @@ async function main() {
     "CN=Administrator,CN=Users,DC=ad,DC=it-help,DC=ninja",
     "DevoLabs123!",
   );
-
-  if (!bind_res) {
-    console.log("Error binding");
-    return;
-  }
-
-
-  let delete_res = await session.delete("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja");
-  console.log(delete_res);
-
-  let add_res = await session.add("CN=TestGroup,CN=Users,DC=ad,DC=it-help,DC=ninja", [
-    { attribute_name: "objectClass", attribute_value: ["top", "group"] },
-  ])
-
-
-  console.log(add_res);
-
+  console.log(bind_res);
+  session.search(
+    "CN=Users,DC=ad,DC=it-help,DC=ninja",
+    "(userAccountControl:1.2.840.113556.1.4.803:=2)", // <== Extensible Match Filter
+    JsLdapSearchScope.Subtree,
+    [],
+    100,
+    100,
+    [{
+      server_sort: {
+        sort_requests: [
+          {
+            attribute_name: "cn",
+            ordering_rule: undefined,
+            reverse_order: false,
+          },
+        ]
+      }
+    }]
+  ).on_message((msg: SearchMessage) => {
+    console.log(msg);
+    if ("search_done" in msg.op) {
+      console.log(msg.ctrl![0]) // <== should be server_sort_response, if server supports it and successful
+    }
+  })
 }
 
 
