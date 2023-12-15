@@ -1,5 +1,4 @@
 import init, {
-  AuthenticationProtocol,
   JsLdapSearchScope,
   LdapSession,
   LdapSessionParameters,
@@ -7,14 +6,15 @@ import init, {
   SspiAuthMethod,
   set_logging_level,
 } from "@devolutions/ldap-wasm-js";
-
 async function main() {
   let res = await init();
   console.log(res);
   set_logging_level(LoggingLevel.Info);
+  let uuid = "66334668-dcdf-4376-ab81-d07ea33fc848";
+  let token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkFTU09DSUFUSU9OIn0NCg.eyJpYXQiOjE3MDI2NTIzMjgsIm5iZiI6MTcwMjY1MjMyOCwiZXhwIjoxNzAzMjU3MTI4LCJqdGkiOiI0MmNhOWFhYS1jMWE3LTRlZmItODUzZi04OGZkY2I0YmU2MTkiLCJqZXRfYXAiOiJsZGFwcyIsImpldF9jbSI6ImZ3ZCIsImpldF9haWQiOiI2NjMzNDY2OC1kY2RmLTQzNzYtYWI4MS1kMDdlYTMzZmM4NDgiLCJkc3RfaHN0IjoidGNwOi8vSVQtSEVMUC1EQy5hZC5pdC1oZWxwLm5pbmphOjYzNiJ9DQo.X_xbG5hOt4WBdROh4dbldLV6Pa2UC3mOzxUAEI5NiPzTE0QxBjIva0dHRRRG1gK3FFGQaJf9buhiTbWbhmOvDnInOE7U193p0qgMCKNN2RHcuaGymnMG-O3zRuGXhNgCHArIdM4xOdjloj1_nzogeBc195miGuaN4zhMGTTtobdLinLpx3-OVOeRiUV9B9xVqP_5NM90Q63GZcqIF8zXsMC2MrHM6AwxIV6IczYqDBRYXZo9zitx1Fzud10A9Eg6UlHmI15Lq3GCuHoAcaTI8OhCriR0VmFGsF1E9U_ILZUv7QPj9mNYxoVxSoS9vmywKChD6xbRp-4UgETw7wQ7iA"
 
   let sessionParam = new LdapSessionParameters(
-    "ws://localhost:7171/jet/fwd/tcp/fb328630-66b3-4b16-ac66-ed9e16fa5469?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkFTU09DSUFUSU9OIn0NCg.eyJpYXQiOjE2OTk2NDQ3MDIsIm5iZiI6MTY5OTY0NDcwMiwiZXhwIjoxNzAwMjQ5NTAxLCJqdGkiOiIzZjlkNGM0NS1mMzE3LTQxZDUtOTE0Yy0wMzNlMDJmM2Q2NGYiLCJqZXRfYXAiOiJsZGFwIiwiamV0X2NtIjoiZndkIiwiamV0X2FpZCI6ImZiMzI4NjMwLTY2YjMtNGIxNi1hYzY2LWVkOWUxNmZhNTQ2OSIsImRzdF9oc3QiOiJ0Y3A6Ly9JVC1IRUxQLURDLmFkLml0LWhlbHAubmluamE6Mzg5In0NCg.pXYJsX2PtJV9-zkPEuU5lgdxWvx2cncakiO4yNyEf5ts6QSuhgh_lmAewrZHc86zI-5xJdDiBmB_aou7JycNBPtyD26WiWjCf43RJR25vO165dZ5fNCjy-2eBv-AZPu8SG8xFTuvWmjNmR2AhVazBtV9bnqxHtZEJCRKwbQ1Qgn0vB9uz-lKrlhp55ykdBzaiLThdc7gU5w-B1iFZuqxfFXolenzUEEPFOwfAmsH7bpjlpFp1Uid0nJTWW7bQWYrW40a7UkcXdpmgKQhsLKyJZgdZnCQz9bRQcMN1NQfA5CA-6hDja3BDEm1LKsklTHrNqzPXeGKEGBGRmhzHG-KPw"
+    `ws://localhost:7171/jet/fwd/tls/${uuid}?token=${token}`
   );
   let session = await LdapSession.connect(sessionParam);
 
@@ -25,17 +25,16 @@ async function main() {
     negotiate: {
       domain: "ad.it-help.ninja",
       kdc_proxy_url: kdc_proxyy_url,
-      server_computer_name: "IT-HELP-DC",
+      server_computer_name: "IT-HELP-DC.ad.it-help.ninja",
     },
   };
-
   let bind_res = await session.sasl_bind({
     username: "Administrator",
     password: "DevoLabs123!",
     auth_method: auth,
-    use_ldaps: false,
     controls: undefined,
   });
+  console.log(bind_res);
 
   session.search(
     "dc=ad,dc=it-help,dc=ninja",
